@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f1020">
+    <title>Retro Player</title>
+    <link rel="preconnect" href="https://cdns-files.dzcdn.net">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ff6d00' d='M48 8v36.7A10.3 10.3 0 1 1 44 45V20H24v24.7A10.3 10.3 0 1 1 20 45V12z'/%3E%3C/svg%3E">
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand">
+            <span class="brand-badge">R</span>
+            <h1 class="brand-title">Leric's Player</h1>
+        </div>
+        <div class="header-actions">
+            <button id="themeToggle" class="toggle" aria-label="Toggle theme" title="Toggle theme (T)">
+                <span class="toggle-thumb" aria-hidden="true"></span>
+                <span class="toggle-label light">Light</span>
+                <span class="toggle-label dark">Dark</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="layout">
+        <section class="panel search-panel" aria-labelledby="searchLabel">
+            <div class="search-bar">
+                <label id="searchLabel" for="searchInput" class="sr-only">Search Deezer</label>
+                <input id="searchInput" type="search" placeholder="Search songs, artists, albums (Deezer)" autocomplete="off" spellcheck="false" />
+                <button id="searchBtn" class="btn" aria-label="Search">Search</button>
+                <button id="clearSearchBtn" class="btn ghost" aria-label="Clear search">Clear</button>
+            </div>
+            <div class="hint">Tip: Press / to focus search • Enter to run</div>
+            <ul id="results" class="list" role="listbox" aria-label="Search results"></ul>
+        </section>
+
+        <section class="panel library-panel" aria-labelledby="libraryLabel">
+            <div class="panel-header">
+                <h2 id="libraryLabel">Your Library</h2>
+                <div class="panel-actions">
+                    <input id="filePicker" class="sr-only" type="file" accept="audio/*" multiple>
+                    <button id="addLocalBtn" class="btn" aria-label="Add local files">Add Local</button>
+                    <button id="clearLibraryBtn" class="btn ghost" aria-label="Clear library">Clear</button>
+                </div>
+            </div>
+            <ul id="library" class="list" role="list" aria-label="Local files"></ul>
+        </section>
+
+        <section class="panel queue-panel" aria-labelledby="queueLabel">
+            <div class="panel-header">
+                <h2 id="queueLabel">Queue</h2>
+                <div class="panel-actions">
+                    <button id="shuffleBtn" class="icon-btn" aria-label="Shuffle (S)" title="Shuffle (S)">🔀</button>
+                    <button id="repeatBtn" class="icon-btn" aria-label="Repeat (R)" title="Repeat (R)">🔁</button>
+                    <button id="clearQueueBtn" class="btn ghost" aria-label="Clear queue">Clear</button>
+                </div>
+            </div>
+            <ul id="queue" class="list" role="list" aria-label="Playback queue"></ul>
+        </section>
+
+        <section id="lyricsPanel" class="panel lyrics-panel" aria-labelledby="lyricsLabel" hidden>
+            <div class="panel-header">
+                <h2 id="lyricsLabel">Lyrics</h2>
+                <div class="panel-actions">
+                    <button id="refreshLyricsBtn" class="btn ghost" aria-label="Refresh lyrics">Refresh</button>
+                    <button id="closeLyricsBtn" class="icon-btn" aria-label="Close lyrics">✖</button>
+                </div>
+            </div>
+            <div id="lyricsContent" class="lyrics-content" role="region" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <footer class="player" aria-label="Player controls">
+        <div class="now-playing">
+            <img id="cover" class="cover" alt="Cover art" src="" />
+            <div class="meta">
+                <div id="title" class="title">—</div>
+                <div id="artist" class="artist">—</div>
+            </div>
+        </div>
+
+        <div class="transport">
+            <div class="buttons">
+                <button id="prevBtn" class="icon-btn" aria-label="Previous (K)">⏮</button>
+                <button id="playBtn" class="icon-btn primary" aria-label="Play/Pause (Space)">▶️</button>
+                <button id="nextBtn" class="icon-btn" aria-label="Next (L)">⏭</button>
+            </div>
+            <canvas id="waveform" height="64" aria-label="Waveform visualization"></canvas>
+            <div class="timeline">
+                <span id="currentTime" class="time">0:00</span>
+                <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek" />
+                <span id="duration" class="time">0:00</span>
+            </div>
+        </div>
+
+        <div class="right-controls">
+            <button id="muteBtn" class="icon-btn" aria-label="Mute (M)">🔈</button>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume" />
+            <button id="lyricsBtn" class="btn" aria-label="Toggle lyrics">Lyrics</button>
+        </div>
+        <audio id="audio" crossorigin="anonymous"></audio>
+    </footer>
+
+    <template id="resultItemTemplate">
+        <li class="list-item result-item" role="option">
+            <img class="avatar" alt="cover" />
+            <div class="text">
+                <div class="primary"></div>
+                <div class="secondary"></div>
+            </div>
+            <div class="actions">
+                <button class="btn small" data-action="queue">Queue</button>
+                <button class="btn ghost small" data-action="play">Play</button>
+            </div>
+        </li>
+    </template>
+
+    <template id="queueItemTemplate">
+        <li class="list-item queue-item" draggable="true">
+            <span class="handle" title="Drag to reorder">⠿</span>
+            <img class="avatar" alt="cover" />
+            <div class="text">
+                <div class="primary"></div>
+                <div class="secondary"></div>
+            </div>
+            <div class="actions">
+                <button class="btn ghost small" data-action="remove">Remove</button>
+            </div>
+        </li>
+    </template>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
+
+
