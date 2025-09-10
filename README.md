@@ -112,3 +112,5 @@ Modern Chromium, Firefox, and Safari. If lyrics fail on `file://`, run via a loc
 This project is provided as-is for educational and personal use. Ensure you comply with third-party API terms (Deezer, LRCLIB) and local regulations when deploying.
 
 
+<!-- Live site link -->
+https://solomoneric.github.io/Music_App/
